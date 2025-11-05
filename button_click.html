@@ -142,22 +142,22 @@
       waiting = true;
       ready = false;
       
-    clearTimeout(timer);
-    box.style.backgroundColor = 'green';
-    text.textContent = '지금 클릭!';
-    startTime = performance.now();
-    waiting = false;
-    ready = true;
+    // clearTimeout(timer);
+    // box.style.backgroundColor = 'green';
+    // text.textContent = '지금 클릭!';
+    // startTime = performance.now();
+    // waiting = false;
+    // ready = true;
 
-    //   const delay = Math.random() * 2000 + 1000; // 1~3초 랜덤
-    //   clearTimeout(timer);
-    //   timer = setTimeout(() => {
-    //     box.style.backgroundColor = 'green';
-    //     text.textContent = '지금 클릭!';
-    //     startTime = performance.now();
-    //     waiting = false;
-    //     ready = true;
-    //   }, delay);
+      const delay = Math.random() * 2000 + 1000; // 1~3초 랜덤
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        box.style.backgroundColor = 'green';
+        text.textContent = '지금 클릭!';
+        startTime = performance.now();
+        waiting = false;
+        ready = true;
+      }, delay);
     };
 
     box.onclick = () => {
