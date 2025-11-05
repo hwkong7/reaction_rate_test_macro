@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>반응속도 테스트</title>
+  <style>
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background-color: #111;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+    }
+
+    #box {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      cursor: pointer;
+      background-color: red;
+      transition: background-color 0.2s;
+      user-select: none;
+    }
+
+    #text {
+      margin-top: 25px;
+      font-size: 22px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    #result {
+      margin-top: 10px;
+      font-size: 20px;
+      color: #ccc;
+    }
+
+    #startBtn, #resetBtn {
+      margin-top: 20px;
+      padding: 10px 25px;
+      border: none;
+      border-radius: 8px;
+      background-color: #444;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.2s;
+    }
+
+    #startBtn:hover, #resetBtn:hover {
+      background-color: #666;
+    }
+
+    .stats {
+      margin-top: 25px;
+      text-align: center;
+      font-size: 18px;
+    }
+
+    .record-list {
+      margin-top: 10px;
+      font-size: 16px;
+      max-height: 150px;
+      overflow-y: auto;
+      color: #bbb;
+    }
+
+    .best {
+      color: #00ff88;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>반응속도 테스트 🎯</h1>
+  <div id="box"></div>
+  <div id="text">시작 버튼을 누르세요</div>
+  <div id="result"></div>
+
+  <div style="display:flex; gap:10px; margin-top:20px;">
+    <button id="startBtn">시작</button>
+    <button id="resetBtn">기록 초기화</button>
+  </div>
+
+  <div class="stats" id="stats">
+    <div>시도: 0</div>
+    <div>평균: –</div>
+    <div>최고(최단): –</div>
+  </div>
+
+  <div class="record-list" id="records"></div>
+
+  <script>
+    const box = document.getElementById('box');
+    const text = document.getElementById('text');
+    const result = document.getElementById('result');
+    const startBtn = document.getElementById('startBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const stats = document.getElementById('stats');
+    const records = document.getElementById('records');
+
+    let startTime, timer;
+    let waiting = false, ready = false;
+    let recordList = [];
+
+    function updateStats() {
+      const count = recordList.length;
+      if (count === 0) {
+        stats.innerHTML = `<div>시도: 0</div><div>평균: –</div><div>최고(최단): –</div>`;
+        records.innerHTML = '';
+        return;
+      }
+
+      const avg = Math.round(recordList.reduce((a,b) => a+b, 0) / count);
+      const best = Math.min(...recordList);
+
+      stats.innerHTML = `
+        <div>시도: ${count}</div>
+        <div>평균: ${avg} ms</div>
+        <div>최고(최단): <span class="best">${best} ms</span></div>
+      `;
+
+      let html = recordList.map((r, i) =>
+        `<div>${i+1}. ${r} ms ${r===best ? '🏆' : ''}</div>`
+      ).join('');
+      records.innerHTML = html;
+    }
+
+    startBtn.onclick = () => {
+      result.textContent = '';
+      box.style.backgroundColor = 'red';
+      text.textContent = '곧 초록색으로 바뀝니다...';
+      waiting = true;
+      ready = false;
+      
+    clearTimeout(timer);
+    box.style.backgroundColor = 'green';
+    text.textContent = '지금 클릭!';
+    startTime = performance.now();
+    waiting = false;
+    ready = true;
+
+    //   const delay = Math.random() * 2000 + 1000; // 1~3초 랜덤
+    //   clearTimeout(timer);
+    //   timer = setTimeout(() => {
+    //     box.style.backgroundColor = 'green';
+    //     text.textContent = '지금 클릭!';
+    //     startTime = performance.now();
+    //     waiting = false;
+    //     ready = true;
+    //   }, delay);
+    };
+
+    box.onclick = () => {
+      if (waiting) {
+        // 너무 빨리 누름
+        clearTimeout(timer);
+        box.style.backgroundColor = 'red';
+        text.textContent = '너무 빨랐어요 😅 다시 시작하세요';
+        result.textContent = '';
+        waiting = false;
+        return;
+      }
+
+      if (ready) {
+        const reaction = Math.round(performance.now() - startTime);
+        box.style.backgroundColor = 'red';
+        text.textContent = '시작 버튼을 누르세요';
+        result.textContent = `반응속도: ${reaction} ms`;
+        ready = false;
+        recordList.push(reaction);
+        updateStats();
+      }
+    };
+
+    resetBtn.onclick = () => {
+      recordList = [];
+      result.textContent = '';
+      text.textContent = '시작 버튼을 누르세요';
+      updateStats();
+    };
+
+    updateStats();
+  </script>
+</body>
+</html>
